@@ -1,0 +1,11 @@
+version: '1'
+services:
+  db:
+    build: ./Database
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+    volumes:
+      - db-data:/var/lib/mysql
+
+volumes:
+  db-data:
