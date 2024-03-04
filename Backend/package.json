@@ -1,0 +1,15 @@
+{
+  "name": "DocExplorer Backend",
+  "version": "0.0.0",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "Balthazar Lebreton <balthazar.lebreton@gmail.com>",
+  "license": "GNU AFFERO GENERAL PUBLIC LICENSE v3",
+  "dependencies": {
+    "express": "^4.18.3",
+    "mysql2": "^3.9.2"
+  }
+}

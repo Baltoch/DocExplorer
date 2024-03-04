@@ -1,11 +1,29 @@
-version: '1'
+version: '3'
 services:
   db:
-    build: ./Database
+    build: 
+      context: ./Database
+      dockerfile: ./Dockerfile
     environment:
       - MYSQL_ROOT_PASSWORD=password
     volumes:
       - db-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: ./Dockerfile
+    depends_on:
+      - db
+    environment:
+      - PORT=3000
+      - MYSQL_PORT=3306
+      - MYSQL_ROOT_PASSWORD=password
+    ports:
+      - "3000:3000"
+    restart: on-failure
 
 volumes:
   db-data:
