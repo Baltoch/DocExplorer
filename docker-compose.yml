@@ -2,8 +2,8 @@ version: '3'
 services:
   db:
     build: 
-      context: ./Database
-      dockerfile: ./Dockerfile
+      context: .
+      dockerfile: ./Database/db.dockerfile
     environment:
       - MYSQL_ROOT_PASSWORD=password
     volumes:
@@ -13,8 +13,8 @@ services:
 
   backend:
     build: 
-      context: ./backend
-      dockerfile: ./Dockerfile
+      context: .
+      dockerfile: ./Backend/backend.dockerfile
     depends_on:
       - db
     environment:
