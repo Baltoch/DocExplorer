@@ -1,29 +1,61 @@
 version: '3'
+
 services:
-  db:
-    build: 
-      context: .
-      dockerfile: ./Database/db.dockerfile
-    environment:
-      - MYSQL_ROOT_PASSWORD=password
-    volumes:
-      - db-data:/var/lib/mysql
-    ports:
-      - "3306:3306"
 
   backend:
     build: 
       context: .
-      dockerfile: ./Backend/backend.dockerfile
+      dockerfile: ./Docker/backend.dockerfile
     depends_on:
       - db
+      - filestorage
     environment:
-      - PORT=3000
-      - MYSQL_PORT=3306
-      - MYSQL_ROOT_PASSWORD=password
+      - PORT=${BACKEND_PORT}
+      - MYSQL_PORT=${MYSQL_PORT}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - FILE_STORAGE_PORT=${FILE_STORAGE_PORT}
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME}
     ports:
-      - "3000:3000"
-    restart: on-failure
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    restart: unless-stopped
 
-volumes:
-  db-data:
+  filestorage:
+    build: 
+      context: .
+      dockerfile: ./Docker/filestorage.dockerfile
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME}
+      - PORT=${FILE_STORAGE_PORT}
+    ports:
+      - "${FILE_STORAGE_PORT}:${FILE_STORAGE_PORT}"
+      - "9001:9001"
+    restart: unless-stopped
+
+  db:
+    build: 
+      context: .
+      dockerfile: ./Docker/db.dockerfile
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    #volumes:
+    #  - db-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+
+  ocr:
+    build:
+      context: .
+      dockerfile: ./Docker/ocr.dockerfile
+    environment:
+      - BACKEND_URL=http://backend:${BACKEND_PORT}
+    depends_on:
+      - backend
+    restart: unless-stopped
+    
+#volumes:
+#  db-data:
