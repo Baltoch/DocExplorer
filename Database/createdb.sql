@@ -10,7 +10,8 @@ CREATE TABLE jobs(
     status varchar(5000),
     userid int NOT NULL,
     result varchar(10),
-    images varchar(10)
+    images varchar(10),
+    date DATETIME NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE users(
