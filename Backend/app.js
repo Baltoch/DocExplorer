@@ -4,6 +4,7 @@ import files from './routes/files.js'
 import jobs from './routes/jobs.js';
 import users from './routes/users.js';
 import ocr from './routes/ocr.js';
+import cors from 'cors';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -27,6 +28,7 @@ db.connect(err => {
 
 // Middleware
 app.use(json());
+app.use(cors());
 
 app.use('/files', files);
 app.use('/jobs', jobs(db));
