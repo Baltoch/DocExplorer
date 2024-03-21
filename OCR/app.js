@@ -10,7 +10,7 @@ const FILE_DIRECTORY = process.env.FILE_DIRECTORY || '/app/docexplorer/';
 function handleJob(job) {
     // Get Images from File Storage
     axios.get(`${BACKEND_URL}/files/${job.images}`, { responseType: 'stream' }).then((res) => {
-        res.data.pipe(fs.createWriteStream(FILE_DIRECTORY + job.images));
+        res.data.pipe(fs.createWriteStream(`${FILE_DIRECTORY}/${job.images}`));
     })
     .catch((err) =>{
         console.error(err);
@@ -18,7 +18,7 @@ function handleJob(job) {
     });
 
     // Execute OCR
-    const tesseract = exec(`tesseract ${FILE_DIRECTORY + job.images} ${FILE_DIRECTORY}/${job.id} pdf`, (error, stdout, stderr) => {
+    const tesseract = exec(`tesseract "${FILE_DIRECTORY}/${job.images}" "${FILE_DIRECTORY}/${job.id}" pdf`, (error, stdout, stderr) => {
         if (error) {
             console.log(`error: ${error.message}`);
             return;
@@ -38,7 +38,7 @@ function handleJob(job) {
     form.append('file', fs.createReadStream(`${FILE_DIRECTORY}/${job.id}.pdf`));
     axios.post(`${BACKEND_URL}/files`, form, { headers: form.getHeaders() }).then((res) => {
         job.result = `${job.id}.pdf`;
-        job.status = 'done';
+        job.status = 'Done';
         axios.put(`${BACKEND_URL}/jobs/${job.id}`, job).catch((err) => {
             console.error(err);
             return;
