@@ -12,44 +12,47 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3000';
 
 export default function Home() {
   const [fileList, setFileList] = useState<FileList | null>(null);
-
+  const [jobs, setJobs] = useState<Array<any>>([]);
   useEffect(() => {
-    const form = new FormData();
-    form.append('file', fileList?fileList[0]:null);
-    axios.post(`${BACKEND_URL}/files`, form, { headers: {'Content-Type': 'multipart/form-data'} }).catch((err) => {
+    axios.get(`${BACKEND_URL}/jobs`).then((res) => {
+        setJobs(res.data);
+    })
+    .catch((err) =>{
         console.error(err);
         return;
     });
-    console.log('here');
-    const data = {
-        status: "awaitingocr",
-        userid: 1,
-        result: null,
-        images: fileList?fileList[0].name:null
+  }, []);
+  useEffect(() => {
+    const form = new FormData();
+    if(fileList) {
+      form.append('file', new File([fileList[0]], `newFileName.${fileList[0].type}`, {
+        type: fileList[0].type,
+        lastModified: fileList[0].lastModified
+      }));
+      axios.post(`${BACKEND_URL}/files`, form, { headers: {'Content-Type': 'multipart/form-data'} }).catch((err) => {
+          console.error(err);
+          return;
+      });
+      const data = {
+          status: "awaitingocr",
+          userid: 1,
+          result: null,
+          images: fileList[0].name
+      }
+      axios.post(`${BACKEND_URL}/jobs`, JSON.stringify(data), { headers: {'Content-Type': 'application/json'}}).catch((err) => {
+          console.error(err);
+      })
     }
-    console.log('there');
-    axios.post(`${BACKEND_URL}/jobs`, JSON.stringify(data), { headers: {'Content-Type': 'application/json'}}).catch((err) => {
-        console.error(err);
-    })
-    console.log('away');
+    
   }, [fileList])
-
-  let jobs: Array<any> = [];
-  axios.get(`${BACKEND_URL}/jobs`).then((res) => {
-      jobs = res.data;
-  })
-  .catch((err) =>{
-      console.error(err);
-      return;
-  });
   return (
     <main className="dark font-body flex min-h-screen flex-col items-center justify-center bg-neutral-900 dark:text-white">
-      <TopBar />
+      <TopBar className="fixed top-0 left-0 bg-neutral-900 z-10"/>
       <div className="w-full flex">
-        <SideMenu />
+        <SideMenu className="fixed bottom-0 left-0 pt-16 z-20 opacity-0 md:opacity-100"/>
         <div className="w-full px-8">
-          <ToolBar setFileList={setFileList}/>
-          <div className="flex flex-wrap h-[calc(100vh-11rem)] overflow-y-scroll justify-center gap-4">
+          <ToolBar setFileList={setFileList} className="w-[calc(100%-16rem)] fixed top-16 left-64 px-8 bg-neutral-900 z-10"/>
+          <div className="w-full grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pt-44 pb-8 pl-64">
             {
               jobs.map((job, index) => (
                 <Card key={index} title={job.id} imageSrc={BACKEND_URL + '/files/' + (job.result || job.images)} status={job.status} onDelete={()=>{}} onEdit={()=>{}} onDownload={()=>{}} />

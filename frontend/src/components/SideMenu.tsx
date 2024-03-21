@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { File, Settings, Timer, CircleCheckBig, CircleX, BookOpen, ArrowUpRight, Mail, Github } from "lucide-react";
 
-export default function SideMenu() {
+export default function SideMenu(props: {className?: string}) {
     return (
-        <div className="flex flex-col w-64 min-w-64 h-full min-h-[calc(100vh-4rem)] border-r border-neutral-500 justify-start items-center">
+        <div className={`flex flex-col w-64 min-w-64 h-full min-h-[calc(100vh-4rem)] border-r border-neutral-500 justify-start items-center ${props.className}`}>
             <div className="flex flex-col w-full border-b border-neutral-500 p-4 gap-2">
                 <Button className="w-full flex-row gap-2 justify-start dark:text-white" variant="ghost">
                     <File className="h-4 w-4"/>

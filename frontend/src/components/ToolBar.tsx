@@ -7,12 +7,12 @@ import { ChangeEvent, ChangeEventHandler, Dispatch, SetStateAction } from "react
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3000';
 
-export default function ToolBar(props: {setFileList: Dispatch<SetStateAction<FileList | null>>}) {
+export default function ToolBar(props: {setFileList: Dispatch<SetStateAction<FileList | null>>; className?: string}) {
     const onUpload: ChangeEventHandler<HTMLInputElement> = (event:ChangeEvent<HTMLInputElement>) => {
         props.setFileList(event.target.files);
     }
     return (
-        <div className="w-full flex items-center justify-start gap-2 py-8">
+        <div className={`w-full flex items-center justify-start gap-2 py-8 ${props.className}`}>
             <label htmlFor="searchbarinput" className="searchbar cursor-text grow flex gap-2 px-4 h-10 items-center border border-neutral-500 rounded-md has-[:focus-visible]:ring-white has-[:focus-visible]:ring-1">
                 <Search className="h-4 w-4 dark:stroke-neutral-500 stroke-2"/>
                 <Input id="searchbarinput" className="grow border-none p-0 dark:text-white dark:placeholder:text-neutral-500 focus-visible:ring-transparent text-sm" placeholder="Search" type="text"/>
