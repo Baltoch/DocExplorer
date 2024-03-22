@@ -49,10 +49,10 @@ export default function Home() {
     <main className="dark font-body flex min-h-screen flex-col items-center justify-center bg-neutral-900 dark:text-white">
       <TopBar className="fixed top-0 left-0 bg-neutral-900 z-10"/>
       <div className="w-full flex">
-        <SideMenu className="fixed bottom-0 left-0 pt-16 z-20 opacity-0 md:opacity-100"/>
+        <SideMenu className="fixed bottom-0 left-0 pt-16 z-20 opacity-0 lg:opacity-100"/>
         <div className="w-full px-8">
-          <ToolBar setFileList={setFileList} className="w-[calc(100%-16rem)] fixed top-16 left-64 px-8 bg-neutral-900 z-10"/>
-          <div className="w-full grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pt-44 pb-8 pl-64">
+          <ToolBar setFileList={setFileList} className="w-full lg:w-[calc(100%-16rem)] fixed top-16 left-0 lg:left-64 px-8 bg-neutral-900 z-10"/>
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pt-44 pb-8 lg:pl-64">
             {
               jobs.map((job, index) => (
                 <Card key={index} title={job.id} imageSrc={BACKEND_URL + '/files/' + (job.result || job.images)} status={job.status} onDelete={()=>{}} onEdit={()=>{}} onDownload={()=>{}} />

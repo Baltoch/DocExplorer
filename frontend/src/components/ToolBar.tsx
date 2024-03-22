@@ -19,12 +19,12 @@ export default function ToolBar(props: {setFileList: Dispatch<SetStateAction<Fil
             </label>
             <label htmlFor="upload" className="h-10 px-4 py-2 gap-2 cursor-pointer text-primary-foreground shadow dark:bg-neutral-700 dark:hover:bg-neutral-500 dark:text-white dark:active:bg-neutral-400 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50">
                 <Upload className="h-4 w-4"/>
-                <span>Upload</span>
+                <span className="hidden md:block">Upload</span>
                 <input id="upload" type="file" accept=".png,.jpg,.jpeg,.tiff" onChange={onUpload} hidden/>
             </label>
             <Button className="h-10 gap-2 dark:bg-neutral-700 dark:hover:bg-neutral-500 dark:text-white dark:active:bg-neutral-400">
                 <RefreshCcw className="h-4 w-4"/>
-                <span>Refresh</span>
+                <span className="hidden md:block">Refresh</span>
             </Button>
         </div>
     );
