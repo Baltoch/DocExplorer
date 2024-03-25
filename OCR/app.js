@@ -31,24 +31,30 @@ function handleJob(job) {
 
     tesseract.on('close', (code) => {
         console.log('Tesseract exited with code', code);
-    });
 
-    // Save PDF to File Storage
-    const form = new FormData();
-    form.append('file', fs.createReadStream(`${FILE_DIRECTORY}/${job.id}.pdf`));
-    axios.post(`${BACKEND_URL}/files`, form, { headers: form.getHeaders() }).then((res) => {
-        job.result = `${job.id}.pdf`;
-        job.status = 'Done';
-        axios.put(`${BACKEND_URL}/jobs/${job.id}`, job).catch((err) => {
+        // Save PDF to File Storage
+        const form = new FormData();
+        form.append('file', fs.createReadStream(`${FILE_DIRECTORY}/${job.id}.pdf`));
+        axios.post(`${BACKEND_URL}/files`, form, { headers: form.getHeaders() }).then((res) => {
+            if(code == 0) {
+                job.result = `${job.id}.pdf`;
+                job.status = 'Succeeded';
+            }
+            else {
+                job.result = null;
+                job.status = 'Failed';
+            }
+            axios.put(`${BACKEND_URL}/jobs/${job.id}`, job).catch((err) => {
+                console.error(err);
+                return;
+            });
+            fs.rm(`${FILE_DIRECTORY}/${job.id}.pdf`, () => {console.log(`${job.id}.pdf deleted from local storage`)});
+            fs.rm(`${FILE_DIRECTORY}/${job.images}`, () => {console.log(`${job.images} deleted from local storage`)});
+        })
+        .catch((err) => {
             console.error(err);
             return;
         });
-        fs.rm(`${FILE_DIRECTORY}/${job.id}.pdf`, () => {console.log(`${job.id}.pdf deleted from local storage`)});
-        fs.rm(`${FILE_DIRECTORY}/${job.images}`, () => {console.log(`${job.images} deleted from local storage`)});
-    })
-    .catch((err) => {
-        console.error(err);
-        return;
     });
 }
 
