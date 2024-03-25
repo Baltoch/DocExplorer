@@ -5,7 +5,7 @@ export default (db) => {
 
     // Get a specific user by ID
     router.get('/:id', (req, res) => {
-        const id = req.params;
+        const id = req.params.id;
         const sql = `SELECT * FROM users WHERE id = ?`;
         db.query(sql, id, (err, result) => {
             if (err) {
@@ -13,6 +13,42 @@ export default (db) => {
                 res.status(500).send(err);
             }
             res.json(result);
+        });
+    });
+
+    // Get webpage data for a specific user by ID
+    router.get('/:id/load', (req, res) => {
+        let response = {};
+        const id = req.params.id;
+        const sql1 = `SELECT * FROM users WHERE id = ?`;
+        const sql2 = `SELECT * FROM jobs WHERE userid = ?`;
+        const sql3 = `SELECT status, COUNT(*) AS count FROM jobs WHERE userid = ? GROUP BY status`;
+        db.query(sql1, id, (err, result) => {
+            if (err) {
+                console.log(err);
+                res.status(500).send(err);
+            }
+            response.user = result[0];
+            db.query(sql2, id, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    res.status(500).send(err);
+                }
+                response.jobs = result;
+                db.query(sql3, id, (err, result) => {
+                    if (err) {
+                        console.log(err);
+                        res.status(500).send(err);
+                    }
+                    result.forEach(element => {
+                        response = {
+                            ...response,
+                            [element.status]: element.count
+                        }
+                    });
+                    res.json(response);
+                });
+            });
         });
     });
 

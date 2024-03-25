@@ -44,13 +44,13 @@ export default (db) => {
     // Create a new job
     router.post('/', (req, res) => {
         const { status, userid, result, images } = req.body;
-        const sql = `INSERT INTO jobs (status, userid, result, images) VALUES (?, ?, ?, ?)`;
+        const sql = `INSERT INTO jobs (status, userid, result, images) VALUES (?, ?, ?, ?);`;
         db.query(sql, [status, userid, result, images], (err, result) => {
             if (err) {
                 console.log(err);
                 res.status(500).send(err);
             }
-            res.send('Job created successfully');
+            res.json(result);
         });
     });
 
