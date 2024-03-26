@@ -1,6 +1,14 @@
 version: '3'
 
 services:
+  frontend:
+    build:
+      context: .
+      dockerfile: ./Docker/frontend.dockerfile
+    environment:
+      - BACKEND_URL=http://backend:${BACKEND_PORT}
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
 
   backend:
     build: 
