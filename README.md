@@ -2,7 +2,7 @@
 
 DocExplorer is an open source AI powered PDF scanner generating the text and the metadata of documents from images.  
 
-[![License](https://img.shields.io/github/license/Baltoch/DocExplorer)](LICENSE)
+[![License](https://img.shields.io/github/license/Baltoch/DocExplorer)](https://github.com/Baltoch/DocExplorer)
 [![GitHub issues](https://img.shields.io/github/issues/Baltoch/DocExplorer)](https://github.com/Baltoch/DocExplorer/issues)
 [![GitHub stars](https://img.shields.io/github/stars/Baltoch/DocExplorer)](https://github.com/Baltoch/DocExplorer/stargazers)
 
