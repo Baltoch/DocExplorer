@@ -3,11 +3,11 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, RefreshCcw, Upload } from "lucide-react";
-import { ChangeEvent, ChangeEventHandler, Dispatch, SetStateAction } from "react";
+import { ChangeEvent, ChangeEventHandler, Dispatch, MouseEventHandler, SetStateAction } from "react";
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3000';
 
-export default function ToolBar(props: {setFileList: Dispatch<SetStateAction<FileList | null>>; className?: string}) {
+export default function ToolBar(props: {setFileList: Dispatch<SetStateAction<FileList | null>>; className?: string; onRefresh: MouseEventHandler<HTMLButtonElement>}) {
     const onUpload: ChangeEventHandler<HTMLInputElement> = (event:ChangeEvent<HTMLInputElement>) => {
         props.setFileList(event.target.files);
     }
@@ -22,7 +22,7 @@ export default function ToolBar(props: {setFileList: Dispatch<SetStateAction<Fil
                 <span className="hidden md:block">Upload</span>
                 <input id="upload" type="file" accept=".png,.jpg,.jpeg,.tiff" onChange={onUpload} hidden/>
             </label>
-            <Button className="h-10 gap-2 dark:bg-neutral-700 dark:hover:bg-neutral-500 dark:text-white dark:active:bg-neutral-400">
+            <Button onClick={props.onRefresh} className="h-10 gap-2 dark:bg-neutral-700 dark:hover:bg-neutral-500 dark:text-white dark:active:bg-neutral-400">
                 <RefreshCcw className="h-4 w-4"/>
                 <span className="hidden md:block">Refresh</span>
             </Button>
