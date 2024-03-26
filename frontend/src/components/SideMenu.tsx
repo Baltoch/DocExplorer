@@ -1,34 +1,34 @@
 import { Button } from "@/components/ui/button";
 import { File, Settings, Timer, CircleCheckBig, CircleX, BookOpen, ArrowUpRight, Mail, Github } from "lucide-react";
 
-export default function SideMenu(props: {className?: string}) {
+export default function SideMenu(props: {className?: string, all: number | null; queuing: number | null; processing: number | null; succeeded: number | null; failed: number | null}) {
     return (
         <div className={`flex flex-col w-64 min-w-64 h-full min-h-[calc(100vh-4rem)] border-r border-neutral-500 justify-start items-center ${props.className}`}>
             <div className="flex flex-col w-full border-b border-neutral-500 p-4 gap-2">
                 <Button className="w-full flex-row gap-2 justify-start dark:text-white" variant="ghost">
                     <File className="h-4 w-4"/>
                     <span>All</span>
-                    <span className="flex-auto text-right">0</span>
+                    <span className="flex-auto text-right">{props.all}</span>
                 </Button>
                 <Button className="w-full flex-row gap-2 justify-start dark:text-white" variant="ghost">
                     <Timer className="h-4 w-4"/>
                     <span>Queuing</span>
-                    <span className="flex-auto text-right">0</span>
+                    <span className="flex-auto text-right">{props.queuing}</span>
                 </Button>
                 <Button className="w-full flex-row gap-2 justify-start dark:text-white" variant="ghost">
                     <Settings className="h-4 w-4"/>
                     <span>Processing</span>
-                    <span className="flex-auto text-right">0</span>
+                    <span className="flex-auto text-right">{props.processing}</span>
                 </Button>
                 <Button className="w-full flex-row gap-2 justify-start dark:text-white" variant="ghost">
                     <CircleCheckBig className="h-4 w-4"/>
                     <span>Succeeded</span>
-                    <span className="flex-auto text-right">0</span>
+                    <span className="flex-auto text-right">{props.succeeded}</span>
                 </Button>
                 <Button className="w-full flex-row gap-2 justify-start dark:text-white" variant="ghost">
                     <CircleX className="h-4 w-4"/>
                     <span>Failed</span>
-                    <span className="flex-auto text-right">0</span>
+                    <span className="flex-auto text-right">{props.failed}</span>
                 </Button>
             </div>
             <div className="flex flex-col w-full p-4 gap-2">
