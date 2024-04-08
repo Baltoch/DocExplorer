@@ -2,12 +2,25 @@ import { exec } from 'child_process';
 import axios from 'axios';
 import fs from 'node:fs';
 import FormData from 'form-data';
+import express from 'express';
 
-const PORT = process.env.PORT || 3000;
+const app = express();
+
+const PORT = process.env.PORT || 3030;
 const BACKEND_URL = process.env.BACKEND_URL || 'http://backend:3000';
 const FILE_DIRECTORY = process.env.FILE_DIRECTORY || '/app/docexplorer/';
 
-function handleJob(job) {
+app.post('/', (req, res) => {
+    let job = {
+        title: req.body.title,
+        images: req.body.images,
+        result: req.body.result,
+        id: req.body.id,
+        userid: req.body.userid,
+        tags: req.body.tags,
+        status: req.body.status
+    };
+
     // Get Images from File Storage
     axios.get(`${BACKEND_URL}/files/${job.images}`, { responseType: 'stream' }).then((res) => {
         res.data.pipe(fs.createWriteStream(`${FILE_DIRECTORY}/${job.images}`));
@@ -56,14 +69,9 @@ function handleJob(job) {
             return;
         });
     });
-}
+});
 
-setInterval(() => {
-    axios.get(`${BACKEND_URL}/ocr`).then((res) => {
-        if(res.data[0] != undefined) handleJob(res.data[0]);
-        else console.log("Waiting for a job...");
-    })
-    .catch((err) => {
-        console.error(err);
-    })
-}, 1000);
+// Start server
+app.listen(PORT, () => {
+    console.log(`OCR Server is running on port ${PORT}`);
+});

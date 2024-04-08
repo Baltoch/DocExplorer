@@ -63,6 +63,8 @@ services:
       - BACKEND_URL=http://backend:${BACKEND_PORT}
     depends_on:
       - backend
+    ports:
+      - "3030:3030"
     restart: unless-stopped
     
 #volumes:

@@ -1,4 +1,5 @@
 import express from "express";
+import axios from "axios";
 
 export default (db) => {
     const router = express.Router();
@@ -50,7 +51,21 @@ export default (db) => {
                 console.log(err);
                 res.status(500).send(err);
             }
-            res.json(result);
+            axios.post('ocr:3030', {
+                title: title, 
+                status: status, 
+                nextstep: nextstep, 
+                userid: userid, 
+                result: result, 
+                images: images,
+            })
+            .then(() => {
+                res.json(result);
+            }
+            )
+            .catch((err) => {
+                res.status(500).send(err);
+            })
         });
     });
 
