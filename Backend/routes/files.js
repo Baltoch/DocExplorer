@@ -53,6 +53,19 @@ router.get('/:objectName', async (req, res) => {
   }
 });
 
+// Download a file from MinIO
+router.get('/download/:objectName', async (req, res) => {
+  try {
+    const objectName = req.params.objectName;
+    const objectStream = await minioClient.getObject(process.env.MINIO_BUCKET_NAME || 'docexplorer', objectName);
+    res.setHeader("Content-Disposition", "attachment");
+    objectStream.pipe(res);
+  } catch (error) {
+    console.error('Error downloading file:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // List objects in MinIO bucket
 router.get('/', async (req, res) => {
   try {
