@@ -9,6 +9,7 @@
   "author": "Balthazar Lebreton <balthazar.lebreton@gmail.com>",
   "license": "GNU AFFERO GENERAL PUBLIC LICENSE v3",
   "dependencies": {
+    "amqplib": "^0.10.3",
     "axios": "^1.6.7",
     "child_process": "^1.0.2",
     "express": "^4.19.2",

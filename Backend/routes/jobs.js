@@ -1,5 +1,7 @@
 import express from "express";
-import axios from "axios";
+import amqp from 'amqplib/callback_api.js';
+
+const JOBBROKER_URL = process.env.JOBBROKER_URL || 'amqp://jobbroker:5672';
 
 export default (db) => {
     const router = express.Router();
@@ -46,26 +48,44 @@ export default (db) => {
     router.post('/', (req, res) => {
         const { title, status, nextstep, userid, result, images } = req.body;
         const sql = `INSERT INTO jobs (title, status, nextstep, userid, result, images) VALUES (?, ?, ?, ?, ?, ?);`;
-        db.query(sql, [title, status, nextstep, userid, result, images], (err, result) => {
+        db.query(sql, [title, status, nextstep, userid, result, images], (err, queryResult) => {
             if (err) {
                 console.log(err);
                 res.status(500).send(err);
             }
-            axios.post('ocr:3030', {
-                title: title, 
-                status: status, 
-                nextstep: nextstep, 
-                userid: userid, 
-                result: result, 
-                images: images,
-            })
-            .then(() => {
-                res.json(result);
-            }
-            )
-            .catch((err) => {
-                res.status(500).send(err);
-            })
+            amqp.connect(JOBBROKER_URL, function(error0, connection) {
+                if (error0) {
+                    res.status(500).send(`Error: ${error0}`);
+                }
+                connection.createChannel(function(error1, channel) {
+                    if (error1) {
+                        res.status(500).send(`Error: ${error1}`);
+                    }
+
+                    var queue = 'ocr';
+
+                    const job = {
+                        id: queryResult.insertId,
+                        title: title,
+                        status: status,
+                        nextstep: nextstep,
+                        userid: userid,
+                        result: result,
+                        images: images,
+                    }
+                    var msg = JSON.stringify(job);
+
+                    channel.assertQueue(queue, {
+                        durable: false
+                    });
+                    channel.sendToQueue(queue, Buffer.from(msg));
+
+                    console.log(" [x] Sent %s", msg);
+                });
+                setTimeout(function() {
+                    connection.close();
+                }, 500);
+            });
         });
     });
 

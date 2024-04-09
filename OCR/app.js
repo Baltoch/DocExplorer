@@ -1,77 +1,48 @@
-import { exec } from 'child_process';
-import axios from 'axios';
-import fs from 'node:fs';
-import FormData from 'form-data';
-import express from 'express';
+import amqp from 'amqplib/callback_api.js';
+import handleJob from './handlejob.js';
 
-const app = express();
+const JOBBROKER_URL = process.env.JOBBROKER_URL || 'amqp://jobbroker:5672';
+const JOB_QUEUE = process.env.JOB_QUEUE || 'ocr';
+const NEXT_STEP_QUEUE = process.env.NEXT_STEP_QUEUE || 'metadatagen';
 
-const PORT = process.env.PORT || 3030;
-const BACKEND_URL = process.env.BACKEND_URL || 'http://backend:3000';
-const FILE_DIRECTORY = process.env.FILE_DIRECTORY || '/app/docexplorer/';
-
-app.post('/', (req, res) => {
-    let job = {
-        title: req.body.title,
-        images: req.body.images,
-        result: req.body.result,
-        id: req.body.id,
-        userid: req.body.userid,
-        tags: req.body.tags,
-        status: req.body.status
-    };
-
-    // Get Images from File Storage
-    axios.get(`${BACKEND_URL}/files/${job.images}`, { responseType: 'stream' }).then((res) => {
-        res.data.pipe(fs.createWriteStream(`${FILE_DIRECTORY}/${job.images}`));
-    })
-    .catch((err) =>{
-        console.error(err);
-        return;
-    });
-
-    // Execute OCR
-    const tesseract = exec(`tesseract "${FILE_DIRECTORY}/${job.images}" "${FILE_DIRECTORY}/${job.id}" pdf`, (error, stdout, stderr) => {
-        if (error) {
-            console.log(`error: ${error.message}`);
-            return;
+amqp.connect(JOBBROKER_URL, function(error0, connection) {
+    if (error0) {
+        throw error0;
+    }
+    connection.createChannel(function(error1, channel) {
+        if (error1) {
+            throw error1;
         }
-        if (stderr) {
-            console.log(`stderr: ${stderr}`);
-            return;
-        }
-    });
 
-    tesseract.on('close', (code) => {
-        console.log('Tesseract exited with code', code);
+        channel.assertQueue(JOB_QUEUE, {
+            durable: false
+        });
 
-        // Save PDF to File Storage
-        const form = new FormData();
-        form.append('file', fs.createReadStream(`${FILE_DIRECTORY}/${job.id}.pdf`));
-        axios.post(`${BACKEND_URL}/files`, form, { headers: form.getHeaders() }).then((res) => {
-            if(code == 0) {
-                job.result = `${job.id}.pdf`;
-                job.status = 'Succeeded';
+        console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", JOB_QUEUE);
+
+        channel.consume(JOB_QUEUE, async function(msg) {
+            console.log(" [x] Received %s", msg.content.toString());
+            let job = JSON.parse(msg.content.toString());
+            job = await handleJob(job);
+            console.log(job);
+            if(job?.status == "Processing") {
+                connection.createChannel(function(error2, channel) {
+                    if (error2) {
+                        throw error2;
+                    }
+    
+                    var m = JSON.stringify(job);
+    
+                    channel.assertQueue(NEXT_STEP_QUEUE, {
+                        durable: false
+                    });
+                    channel.sendToQueue(NEXT_STEP_QUEUE, Buffer.from(m));
+    
+                    console.log(" [x] Sent %s", m);
+                });
             }
-            else {
-                job.result = null;
-                job.status = 'Failed';
-            }
-            axios.put(`${BACKEND_URL}/jobs/${job.id}`, job).catch((err) => {
-                console.error(err);
-                return;
-            });
-            fs.rm(`${FILE_DIRECTORY}/${job.id}.pdf`, () => {console.log(`${job.id}.pdf deleted from local storage`)});
-            fs.rm(`${FILE_DIRECTORY}/${job.images}`, () => {console.log(`${job.images} deleted from local storage`)});
-        })
-        .catch((err) => {
-            console.error(err);
-            return;
+        }, {
+            noAck: true
         });
     });
-});
-
-// Start server
-app.listen(PORT, () => {
-    console.log(`OCR Server is running on port ${PORT}`);
 });

@@ -63,8 +63,22 @@ services:
       - BACKEND_URL=http://backend:${BACKEND_PORT}
     depends_on:
       - backend
-    ports:
-      - "3030:3030"
+    restart: unless-stopped
+
+  metadatagen:
+    build:
+      context: .
+      dockerfile: ./Docker/metadatagen.dockerfile
+    environment:
+      - BACKEND_URL=http://backend:${BACKEND_PORT}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  jobbroker:
+    build:
+      context: .
+      dockerfile: ./Docker/jobbroker.dockerfile
     restart: unless-stopped
     
 #volumes:
