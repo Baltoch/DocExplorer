@@ -7,8 +7,8 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://backend:3000';
 const FILE_DIRECTORY = process.env.FILE_DIRECTORY || '/app/docexplorer/';
 
 function correctJsonSyntax(jsonString) {
-    // Get rid of previous text
-    jsonString = jsonString.split('{')[1];
+    // Get rid of previous text and following text
+    jsonString = jsonString.split('{')[1].split('}')[0];
 
     // Check for missing closing quotes
     jsonString = jsonString.replace('/("[^"]*")(?![^[]*\])/g', '$1"');
