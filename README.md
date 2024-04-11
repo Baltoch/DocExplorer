@@ -1,6 +1,6 @@
 # DocExplorer
 
-DocExplorer is an open source AI powered PDF scanner generating the text and the metadata of documents from images.  
+DocExplorer is an open source AI powered PDF scanner generating the text and the metadata of documents from images.
 
 [![License](https://img.shields.io/github/license/Baltoch/DocExplorer)](https://github.com/Baltoch/DocExplorer)
 [![GitHub issues](https://img.shields.io/github/issues/Baltoch/DocExplorer)](https://github.com/Baltoch/DocExplorer/issues)
@@ -39,48 +39,55 @@ Before you begin, ensure you have met the following requirements:
 
 1. Clone the repository:
 
-    ```bash
-    git clone --depth 1 --branch latest https://github.com/Baltoch/DocExplorer.git
-    ```
+   ```bash
+   git clone --depth 1 --branch latest https://github.com/Baltoch/DocExplorer.git
+   ```
 
 2. Navigate to the project directory:
 
-    ```bash
-    cd DocExplorer
-    ```
+   ```bash
+   cd DocExplorer
+   ```
 
-3. Run Docker Compose to build and start the services:
+3. Create environment variables:
 
-    ```bash
-    docker-compose up -d
-    ```
+Fill the different fields of the `.env.sample` and save it as `.env`
+
+4. Run Docker Compose to build and start the services:
+
+   ```bash
+   docker-compose up -d
+   ```
 
 ## Usage
 
-The project is still in development. If you are interested in using it give a star to the repository. You can also [send an email](mailto:balthazar.lebreton@gmail.com) and we'll try to keep you updated. 
+The project is still in development. If you are interested in using it give a star to the repository. You can also [send an email](mailto:balthazar.lebreton@gmail.com) and we'll try to keep you updated.
 
 ## Contributing
 
 We welcome contributions from the community! If you'd like to contribute to DocExplorer, please follow these steps:
 
 1. Fork the repository.
-2. Create a new branch 
+2. Create a new branch
 
-    ```bash
-    git checkout -b feature/your-feature
-    ```
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+
 3. Make your changes.
-4. Commit your changes 
+4. Commit your changes
 
-    ```bash
-    git add .
-    git commit -am 'Add some feature'
-    ```
-5. Push to the branch 
+   ```bash
+   git add .
+   git commit -am 'Add some feature'
+   ```
 
-    ```bash
-    git push origin feature/your-feature
-    ```
+5. Push to the branch
+
+   ```bash
+   git push origin feature/your-feature
+   ```
+
 6. Create a new Pull Request.
 
 ## License
@@ -91,4 +98,4 @@ This project is licensed under the [GNU Affero General Public License Version 3]
 
 If you encounter any issues or have questions regarding DocExplorer, feel free to [open an issue](https://github.com/Baltoch/DocExplorer/issues) on GitHub.
 
-Thank you for using DocExplorer! We hope you find it useful. Happy coding! 
+Thank you for using DocExplorer! We hope you find it useful. Happy coding!
