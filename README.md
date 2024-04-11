@@ -51,7 +51,7 @@ Before you begin, ensure you have met the following requirements:
 
 3. Create environment variables:
 
-Fill the different fields of the `.env.sample` and save it as `.env`
+   Fill the different fields of the `.env.sample` and save it as `.env`
 
 4. Run Docker Compose to build and start the services:
 
