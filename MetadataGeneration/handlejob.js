@@ -1,6 +1,7 @@
-import { HuggingFaceInference } from "langchain/llms/hf";
-import { PDFDocument, PDFName, PDFString } from "pdf-lib";
+import { HuggingFaceInference } from "@langchain/community/llms/hf";
+import { PDFDocument } from "pdf-lib";
 import axios from 'axios';
+import { getDocument } from "pdfjs-dist/build/pdf.mjs";
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://backend:3000';
 const FILE_DIRECTORY = process.env.FILE_DIRECTORY || '/app/docexplorer/';
@@ -21,7 +22,7 @@ function correctJsonSyntax(jsonString) {
         jsonString += '}'.repeat(missingBraceCount);
     }
 
-    return jsonString;
+    return `{${jsonString}}`;
 }
 
 // Function to load a PDF file from a URL and convert response data to a buffer
@@ -34,17 +35,22 @@ async function fetchPDFFromURL(url) {
 
 // Function to extract text content from all pages of a PDF
 async function extractTextFromPDF(pdfBuffer) {
-    const pdfDoc = await PDFDocument.load(pdfBuffer);
-    const numPages = pdfDoc.getPages().length;
-    let allText = '';
+    pdfBuffer = Uint8Array.from(pdfBuffer);
+    const loadingTask = getDocument({ data: pdfBuffer });
+    const pdfDocument = await loadingTask.promise;
 
-    for (let i = 0; i < numPages; i++) {
-        const page = pdfDoc.getPage(i);
-        const textContent = await page.getTextContent();
-        allText += textContent.items.map((item) => item.str).join(' ') + '\n';
+    const numPages = pdfDocument.numPages;
+    let fullText = '';
+
+    for (let i = 1; i <= numPages; i++) {
+        const page = await pdfDocument.getPage(i);
+        const content = await page.getTextContent();
+        const strings = content.items.map(item => item.str);
+        const pageText = strings.join(' ');
+        fullText += pageText + '\n'; // Add page text and newline
     }
 
-    return allText;
+    return fullText;
 }
 
 export default async function handleJob(job) {
@@ -83,27 +89,70 @@ export default async function handleJob(job) {
             "keywords": ,
         }
         `);
+        console.log(`llmRes: ${llmRes}`);
         const metadataJSON = correctJsonSyntax(llmRes);
-        pdfDoc = PDFDocument.load(pdfBuffer).then((pdfDoc) => {
-            const metadata = pdfDoc.catalog.getOrCreateDict('Metadata');
-            for (const [key, value] of Object.entries(JSON.parse(metadataJSON))) {
-                if (typeof value === 'object') {
-                  metadata.set(PDFName.of(key), PDFString.of(JSON.stringify(value)));
-                } else {
-                  metadata.set(PDFName.of(key), PDFString.of(value));
-                }
-            }
+        console.log(`metadataJSON: ${metadataJSON}`);
+        const metadata = JSON.parse(metadataJSON);
+        console.log(`metadata: ${metadata}`);
+        PDFDocument.load(Uint8Array.from(pdfBuffer))
+        .then(async (pdfDoc) => {
+            // Set Metadata
+            if(metadata.title) pdfDoc.setTitle(job.title);
+            if(metadata.authors) pdfDoc.setAuthor(metadata.authors);
+            if(metadata.creation_date) pdfDoc.setCreationDate(metadata.creation_date);
+            if(metadata.modification_date) pdfDoc.setModificationDate(metadata.modification_date);
+            if(metadata.summary) pdfDoc.setSubject(metadata.summary);
+            if(metadata.keywords) pdfDoc.setKeywords(metadata.keywords.split(','));
+
             // Save the modified PDF document
-            const modifiedPdfBytes = pdfDoc.save();
-            axios.post(`${BACKEND_URL}/files/`, modifiedPdfBytes)
+            const array = await pdfDoc.save();
+            const form = new FormData();
+            form.append('file', new File([new Blob([array], { type: 'application/pdf' })], job.result, { type: 'application/pdf' }));
+            axios.post(`${BACKEND_URL}/files`, form, { headers: { 'Content-Type': 'multipart/form-data' } })
             .catch((err) => {
                 console.error('Error: %s', err);
+                job = {
+                    ...job,
+                    status: 'Failed',
+                }
+                axios.put(`${BACKEND_URL}/jobs/${job.id}`, job).catch((err) => {
+                    console.error(err);
+                    reject(err);
+                });
                 return;
             })
         })
+        .catch((err) => {
+            console.error('Error: %s', err);
+            job = {
+                ...job,
+                status: 'Failed',
+            }
+            axios.put(`${BACKEND_URL}/jobs/${job.id}`, job).catch((err) => {
+                console.error(err);
+                reject(err);
+            });
+            return;
+        })
     } catch (error) {
         console.error('Error: %s', error);
+        job = {
+            ...job,
+            status: 'Failed',
+        }
+        axios.put(`${BACKEND_URL}/jobs/${job.id}`, job).catch((err) => {
+            console.error(err);
+            reject(err);
+        });
         return;
     }
+    job = {
+        ...job,
+        status: 'Succeeded',
+    }
+    axios.put(`${BACKEND_URL}/jobs/${job.id}`, job).catch((err) => {
+        console.error(err);
+        reject(err);
+    });
     return job;
 };

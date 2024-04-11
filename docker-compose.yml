@@ -71,6 +71,7 @@ services:
       dockerfile: ./Docker/metadatagen.dockerfile
     environment:
       - BACKEND_URL=http://backend:${BACKEND_PORT}
+      - HUGGINGFACEHUB_API_KEY=${HUGGINGFACEHUB_API_KEY}
     depends_on:
       - backend
     restart: unless-stopped

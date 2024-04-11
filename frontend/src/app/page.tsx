@@ -70,7 +70,7 @@ export default function Home() {
           }
           axios.post(`${BACKEND_URL}/jobs`, JSON.stringify(job), { headers: { 'Content-Type': 'application/json' } })
             .then((res) => {
-              refreshPage();
+              setTimeout(refreshPage, 100)
             })
             .catch((err) => {
               console.error(err);
@@ -102,6 +102,7 @@ export default function Home() {
                 status={job.status}
                 onDelete={() => {
                   axios.delete(`${BACKEND_URL}/jobs/${job.id}`)
+                  setTimeout(refreshPage, 200)
                 }}
                 onEdit={() => {
                   //window.location.replace(`/${job.id}`)

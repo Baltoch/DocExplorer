@@ -10,11 +10,13 @@
   "license": "GNU AFFERO GENERAL PUBLIC LICENSE v3",
   "dependencies": {
     "@huggingface/inference": "^2.6.6",
+    "@langchain/community": "^0.0.46",
     "amqplib": "^0.10.3",
     "axios": "^1.6.8",
     "form-data": "^4.0.0",
     "jspdf": "^2.5.1",
     "langchain": "^0.1.31",
-    "pdf-lib": "^1.17.1"
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^4.0.379"
   }
 }
