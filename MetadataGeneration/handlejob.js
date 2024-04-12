@@ -12,6 +12,8 @@ function correctJsonSyntax(jsonString) {
 
     // Check for missing closing quotes
     jsonString = jsonString.replace('/("[^"]*")(?![^[]*\])/g', '$1"');
+    const quotes = (jsonString.match('/"/g') || []).length;
+    if(quotes%2==1) jsonString += '"';
 
     // Check for missing closing braces
     const openingBraceCount = (jsonString.match('/{/g') || []).length;
